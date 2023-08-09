@@ -9,52 +9,57 @@ button.addEventListener('click', createTodo);
 input.addEventListener('keydown', (event) => {
   if (event.key === 'Enter') {
     // create todo only if input is not empty
-      createTodo();
+    createTodo();
   }
 });
 
 function createTodo(event) {
+  let input = button.previousElementSibling;
+  let divTodo = button.nextElementSibling;
+  let ul = divTodo.firstElementChild;
+  // console.log(ul);
+  const todo = input.value.trim();
 
-    let input = button.previousElementSibling;
-    let divTodo = button.nextElementSibling;
-    let ul = divTodo.firstElementChild;
-    // console.log(ul);
-    const todo = input.value;
-    // create li
+  // create li
+  let li = document.createElement('li');
+  // set textContent
+  if (todo == '') {
+    return;
+  }
 
-    let li = document.createElement('li');
-    // set textContent
-    if (input.value.trim() == '') {
-      return
-    }
-    li.textContent = todo.trim();
+  li.textContent = todo;
 
-    // single click on the line mean todo is done
-    li.onclick = (event) => {
-      event.target.classList.toggle('completed');
-    };
+  // single click on the line mean todo is done
+  li.onclick = (event) => {
+    event.target.classList.toggle('completed');
+  };
 
-    // double click on the line mean edit todo
+  // double click on the line mean edit todo
 
-    // add a delete button
-    let deleteButton = document.createElement('button');
-    deleteButton.textContent = 'X';
-    // add onclick event to button
-    deleteButton.onclick = (event) => {
+  // add a delete button
+  let deleteButton = document.createElement('button');
+  deleteButton.textContent = 'X';
+  // add onclick event to button
+  deleteButton.onclick = (event) => {
+    // remove li
+    let deleteTodoConfirmed = confirm('do you want to remove todo?!');
+    if (deleteTodoConfirmed) {
+      let thisDeleteButton = event.target;
+      let span = thisDeleteButton.parentElement;
+      let li = span.parentElement;
       // remove li
-      let deleteTodoConfirmed = confirm('todo removed successfully !');
-      if (deleteTodoConfirmed) {
-        event.target.parentElement.parentElement.remove();
-      }
-      // alert latter
-    };
+      li.remove();
+    }
+    // alert latter
+    // toast
+  };
 
-    let span = document.createElement('span');
-    span.append(deleteButton);
-    li.append(span);
-    // append li to ul
-    ul.append(li);
+  let span = document.createElement('span');
+  span.append(deleteButton);
+  li.append(span);
+  // append li to ul
+  ul.append(li);
 
-    // clear input
-    input.value = '';
+  // clear input
+  input.value = '';
 }
