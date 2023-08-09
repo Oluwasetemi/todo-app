@@ -8,7 +8,8 @@ button.addEventListener('click', createTodo);
 
 input.addEventListener('keydown', (event) => {
   if (event.key === 'Enter') {
-    createTodo();
+    // create todo only if input is not empty
+      createTodo();
   }
 });
 
@@ -23,6 +24,9 @@ function createTodo(event) {
 
     let li = document.createElement('li');
     // set textContent
+    if (input.value.trim() == '') {
+      return
+    }
     li.textContent = todo.trim();
 
     // single click on the line mean todo is done
