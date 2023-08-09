@@ -2,7 +2,9 @@ import './style.css';
 
 const button = document.querySelector('button');
 const input = document.querySelector('input');
-//
+
+//  An empty array to hold all the todo created
+const todos = [];
 
 button.addEventListener('click', createTodo);
 
@@ -19,6 +21,8 @@ function createTodo(event) {
   let ul = divTodo.firstElementChild;
   // console.log(ul);
   const todo = input.value.trim();
+  // Add todo to the todos array
+  todos.push(todo);
 
   // create li
   let li = document.createElement('li');
@@ -63,7 +67,7 @@ function createTodo(event) {
   // clear input
   input.value = '';
 
-  localStorage.setItem("todo", todo);
+  localStorage.setItem("todo", todos);
   const storage = localStorage.getItem("todo");
   console.log(storage);
 }
