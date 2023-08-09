@@ -1,0 +1,9 @@
+.completed {
+  text-decoration: line-through;
+}
+
+body {
+  font-family: Helvetica, sans-serif;
+  background-color: #ffffff;
+  margin: 40px;
+}
