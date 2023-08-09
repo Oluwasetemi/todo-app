@@ -35,6 +35,14 @@ function createTodo(event) {
   };
 
   // double click on the line mean edit todo
+  li.ondblclick = (event) => {
+    // get the existing textContent of li
+    let existingTodo = event.target.firstChild.textContent;
+    // prompt user to enter new todo
+    let newTodo = prompt('Enter new todo', existingTodo);
+    // update li textContent
+    event.target.firstChild.textContent = newTodo;
+  }
 
   // add a delete button
   let deleteButton = document.createElement('button');
