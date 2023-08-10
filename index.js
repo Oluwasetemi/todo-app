@@ -1,219 +1,155 @@
 import './style.css';
 
-const button = document.querySelector('button');
-const input = document.querySelector('input');
-
-//  An empty array to hold all the todo created
-const todos = [];
-
-button.addEventListener('click', createTodo);
-
-input.addEventListener('keydown', (event) => {
-  if (event.key === 'Enter') {
-    // create todo only if input is not empty
-    createTodo();
-  }
-});
-
-function createTodo(event) {
-  let input = button.previousElementSibling;
-  let divTodo = button.nextElementSibling;
-  let ul = divTodo.firstElementChild;
-  // console.log(ul);
-  const todo = input.value.trim();
-  // Add todo to the todos array
-  todos.push(todo);
-
-  // create li
-  let li = document.createElement('li');
-  // set textContent
-  if (todo == '') {
-    return;
-  }
-
-  li.textContent = todo;
-
-  // single click on the line mean todo is done
-  li.onclick = handleCompleteTodo;
-
-  // double click on the line mean edit todo
-  li.ondblclick = handleUpdateTodo;
-
-  // add a delete button
-  let deleteButton = document.createElement('button');
-  deleteButton.textContent = 'X';
-  // add onclick event to button
-  deleteButton.onclick = handleDeleteTodo;
-  // alert latter
-  // toast
-
-  let span = document.createElement('span');
-  span.append(deleteButton);
-  li.append(span);
-  // append li to ul
-  ul.append(li);
-
-  // clear input
-  input.value = '';
-
-  // save todo to local storage
-  localStorage.setItem('todo', [...todos, localStorage.getItem('todo') || '']);
-
-  // const storage = localStorage.getItem("todo");
-  // console.log(storage);
+function mk(type, props, children) {
+  const el = document.createElement(type);
+  if (props) Object.assign(el, props);
+  if (children) el.append(...children);
+  return el;
 }
 
-// load todo from local storage on window load
-window.onload = () => {
-  const storage = localStorage.getItem('todo');
+function app() {
+  // declare ui elements
+  let ui = {};
+  // declare state
+  let state = {id: 0, todos: []};
 
-  let ul = document.querySelector('ul');
+  let formChildren = [
+    mk('form', null, [
+      (ui.input = mk('input', { type: 'text', placeholder: 'Enter ToDo' })),
+      (ui.add = mk('button', { onclick: add }, ['Add ToDo'])),
+    ]),
+  ]
+  let children = [
+    mk('h1', { className: 'title' }, ['Todo App']),
+    mk('form', null, formChildren),
+    (ui.todos = mk('ul', { className: 'todos', style: 'padding: 5px' }))
+  ];
 
-  let todoLis = storage
-    .split(',')
-    .filter((todo) => todo !== '')
-    .map((todo) => {
-      // create a single todo
-      let li = document.createElement('li');
-      // set textContent
-      li.textContent = todo;
+  let app = mk('div', { className: 'app', id: 'app' });
+  app.append(...children);
 
-      // single click on the line mean todo is done
-      li.onclick = handleCompleteTodo;
+  // setup event handlers
+  function createTodo(todo) {
+    let item, text, x;
+    function remove() {
+      state.todos = state.todos.filter((t) => t.id !== todo.id);
+      item.remove();
+      // console.log(ui, state);
+    }
+    // console.log(ui, state);
 
-      // double click on the line mean edit todo
-      li.ondblclick = handleUpdateTodo;
+    function edit() {
+      function onkeydown(e) {
+        switch (e.keyCode) {
+          case 13:
+            text.textContent = todo.text = editing.value;
+          case 27:
+            editing.blur(); // eslint-disable-line no-fallthrough
+        }
+      }
 
-      // add a delete button
-      let deleteButton = document.createElement('button');
-      deleteButton.textContent = 'X';
-      // add onclick event to button
-      deleteButton.onclick = handleDeleteTodo;
+      const cancel = () => (x.disabled = editing.replaceWith(text));
 
-      let span = document.createElement('span');
-      span.append(deleteButton);
-      li.append(span);
+      let editing = mk('input', {
+        style: 'flex:1;',
+        onkeydown,
+        value: todo.text,
+        onblur: cancel,
+      });
 
-      return li;
-    });
+      text.replaceWith(editing);
+      editing.focus();
+      x.disabled = true;
+    }
 
-  ul.append(...todoLis);
-};
+    item = mk('li', { style: 'display:flex;' }, [
+      (text = mk('span', { style: 'flex:1;', ondblclick: edit }, [todo.text])),
+      (x = mk('button', { onclick: remove }, ['X'])),
+    ]);
 
-const handleDeleteTodo = (event) => {
-  // remove li
-  let deleteTodoConfirmed = confirm('do you want to remove todo?!');
-  if (deleteTodoConfirmed) {
-    let thisDeleteButton = event.target;
-    let span = thisDeleteButton.parentElement;
-    let li = span.parentElement;
-
-    // delete from local storage
-    let todo = li.firstChild.textContent;
-    // console.log(todo);
-    let storage = localStorage.getItem('todo');
-    // console.log(storage.split(','));
-
-    let newStorage = storage
-      .split(',')
-      .filter((todo) => todo !== '')
-      .filter((todoItem) => todoItem !== todo);
-
-    // console.log(newStorage);
-
-    localStorage.setItem('todo', newStorage);
-
-    // remove li
-    li.remove();
+    return item;
   }
-};
 
-const handleDeleteTodoTest = (event) => {
-  // remove li
-  let thisDeleteButton = event.target;
-  let span = thisDeleteButton.parentElement;
-  let li = span.parentElement;
-  console.log('test delete was called')
-  // remove li
-  li.remove();
-};
+  function add(e) {
+    e.preventDefault();
 
-const handleCompleteTodo = (event) => {
-  event.target.classList.toggle('completed');
-};
+    const text = ui.input.value;
 
-const handleUpdateTodo = (event) => {
-  // get the existing textContent of li
-  let existingTodo = event.target.firstChild.textContent;
-  // prompt user to enter new todo
-  let newTodo = prompt('Enter new todo', existingTodo);
-  // update li textContent
-  event.target.firstChild.textContent = newTodo;
-};
+    if (!text) return;
 
-const handleUpdateTodoTest = (event) => {
-  // get the existing textContent of li
-  let existingTodo = event.target.firstChild.textContent;
-  // prompt user to enter new todo
-  let newTodo = existingTodo + 'test and updated';
-  // update li textContent
-  event.target.firstChild.textContent = newTodo;
-};
+    ui.input.value = '';
+    const todo = { id: ++state.id, text, completed: false };
+    state.todos.push(todo);
 
-// test the app created for performance
-// 1. create 1000 todo
-// 3. edit 1000 todo (update)
-// 2. delete 1000 todo
-// 4. mark 1000 todo as done
-// 5. unmark 1000 todo as done
-// 6. clear all todo
-
-let testDiv = document.createElement('div');
-testDiv.style = 'position: fixed; bottom: 0; left: 0; z-index: 1000;';
-let testTodos = [];
-let createTodoButton = document.createElement('button');
-createTodoButton.textContent = 'Create 1000 todo';
-let ul = document.createElement('ul');
-let time = document.createElement('time');
-time.textContent = '0ms';
-testDiv.append(createTodoButton, time);
-
-createTodoButton.onclick = () => {
-  const start = performance.now();
-  for (let i = 0; i < 1000; i++) {
-    // test todo
-    let todo = `todo ${i}`;
-    // Add todo to the todos array
-    testTodos.push(todo);
-    // create li
-    let li = document.createElement('li');
-    // set textContent
-    li.textContent = todo;
-    li.onclick = handleCompleteTodo;
-    li.ondblclick = handleUpdateTodoTest;
-    // add a delete button
-    let deleteButton = document.createElement('button');
-    deleteButton.textContent = 'X';
-    // add onclick event to button
-    deleteButton.onclick = handleDeleteTodoTest;
-
-    let span = document.createElement('span');
-    span.append(deleteButton);
-    li.append(span);
-    // append li to ul
-    ul.append(li);
-    // complete each todo created
-    li.dispatchEvent(new Event('click'));
-    // uncomplete each todo created
-    li.dispatchEvent(new Event('click'));
-    // update each todo created
-    li.dispatchEvent(new Event('dblclick'));
-
-    // delete each todo created
-    deleteButton.dispatchEvent(new Event('click'));
+    ui.todos.append(createTodo(todo));
   }
-  const end = performance.now();
-  time.textContent = `${end - start}ms`;
-};
 
-document.body.append(testDiv);
+  return app;
+}
+
+document.body.append(app());
+
+function testTodoApp(root) {
+  // convert the current children to array and find the element with the id
+  const app = [].find.call(root.children, (c) => c.id === 'app');
+  console.log(app);
+  let form = app.querySelector('form');
+  const input = app.querySelector('input');
+  console.log(input);
+  const add = app.querySelector('button');
+  console.log(add);
+
+  for (let i = 1; i <= 500; i++) {
+    input.value = `Item ${i}`;
+    input.dispatchEvent(new Event('change'));
+    add.dispatchEvent(new Event('click'));
+  }
+
+  const kids = [].slice.call(form.nextElementSibling.children);
+  console.log(kids)
+
+  for (let i = 0; i < kids.length; i++) {
+    kids[i].firstElementChild.dispatchEvent(new Event('dblclick'));
+    kids[i].firstElementChild.value += ' (updated)';
+    kids[i].firstElementChild.dispatchEvent(
+      Object.assign(new Event('keydown'), { keyCode: 13 })
+    );
+    if (!/updated/.test(kids[i].firstElementChild.textContent)) {
+      throw Error('Expected todo item to have updated text');
+    }
+  }
+
+  for (let i = kids.length / 2; i < kids.length; i++) {
+    // console.log(kids[i].lastElementChild);
+    kids[i]?.lastElementChild.dispatchEvent(new Event('click'));
+  }
+
+  for (let i = kids.length / 2; i--; ) {
+    // console.log(kids[i]);
+    kids[i]?.lastElementChild.dispatchEvent(new Event('click'));
+  }
+}
+
+let time;
+
+document.body.append(
+  mk(
+    'div',
+    { style: 'position:fixed;left:0;bottom:0;background:#eee;padding:10px;' },
+    [
+      mk(
+        'button',
+        {
+          onclick() {
+            const start = performance.now();
+            testTodoApp(document.body);
+            const end = performance.now();
+            time.textContent = `${end - start}ms`;
+          },
+        },
+        ['Run Test']
+      ),
+      (time = mk('time', null, ['<ready>'])),
+    ]
+  )
+);
