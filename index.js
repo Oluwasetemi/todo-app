@@ -13,15 +13,16 @@ input.addEventListener('keydown', (event) => {
 });
 // Get all the todos from the local storage
 const storage = localStorage.getItem("todos");
-console.log(storage);
 
 // Create an onload event to load the todos from the storage
 window.onload = (e) => {
   if (storage) {
     // Split the stored todos into the storageTodoArray variable
-    const storageTodoArray = storage.split(",");
+    const storageTodoArray = storage.split('","');
     // Create a forEach loop to loop through the storageTodoArray and create the todos to be displayed
     storageTodoArray.forEach((todo) => {
+      // Remove extra quotatin mark from the todo
+      todo = todo.replace('"', '');
       // Call the createTodo function to create the todo from the stored todos
       createTodo(e, todo);
     });
@@ -58,11 +59,11 @@ function createTodo(event, savedTodo = null) {
     // Check if there are todos in the local storage    
     if (!storage) {
       // If there are no todos in the local storage, save the todo
-      localStorage.setItem("todos", todo);
+      localStorage.setItem("todos", JSON.stringify(todo));
     }
     // If there are todos in the local storage, add the new todo to the existing todos
     else {
-      localStorage.setItem("todos", [storage, todo]);
+      localStorage.setItem("todos", [storage, JSON.stringify(todo)]);
     }
     // Console log the saved todo
     console.log(localStorage.getItem("todos"));
@@ -97,6 +98,7 @@ function createTodo(event, savedTodo = null) {
   deleteButton.textContent = 'X';
   // add onclick event to button
   deleteButton.onclick = (event) => {
+    localStorage.removeItem("todos");
     // remove li
     let deleteTodoConfirmed = confirm('do you want to remove todo?!');
     if (deleteTodoConfirmed) {
