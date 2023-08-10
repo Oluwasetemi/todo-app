@@ -34,19 +34,10 @@ function createTodo(event) {
   li.textContent = todo;
 
   // single click on the line mean todo is done
-  li.onclick = (event) => {
-    event.target.classList.toggle('completed');
-  };
+  li.onclick = handleCompleteTodo;
 
   // double click on the line mean edit todo
-  li.ondblclick = (event) => {
-    // get the existing textContent of li
-    let existingTodo = event.target.firstChild.textContent;
-    // prompt user to enter new todo
-    let newTodo = prompt('Enter new todo', existingTodo);
-    // update li textContent
-    event.target.firstChild.textContent = newTodo;
-  }
+  li.ondblclick = handleUpdateTodo;
 
   // add a delete button
   let deleteButton = document.createElement('button');
@@ -75,7 +66,6 @@ function createTodo(event) {
 // load todo from local storage on window load
 window.onload = () => {
   const storage = localStorage.getItem('todo');
-  console.log(typeof storage);
 
   let ul = document.querySelector('ul');
 
@@ -87,6 +77,13 @@ window.onload = () => {
       let li = document.createElement('li');
       // set textContent
       li.textContent = todo;
+
+      // single click on the line mean todo is done
+      li.onclick = handleCompleteTodo;
+
+      // double click on the line mean edit todo
+      li.ondblclick = handleUpdateTodo;
+
       // add a delete button
       let deleteButton = document.createElement('button');
       deleteButton.textContent = 'X';
@@ -100,7 +97,6 @@ window.onload = () => {
       return li;
     });
 
-  console.log(todoLis);
   ul.append(...todoLis);
 };
 
@@ -132,6 +128,38 @@ const handleDeleteTodo = (event) => {
   }
 };
 
+const handleDeleteTodoTest = (event) => {
+  // remove li
+  let thisDeleteButton = event.target;
+  let span = thisDeleteButton.parentElement;
+  let li = span.parentElement;
+  console.log('test delete was called')
+  // remove li
+  li.remove();
+};
+
+const handleCompleteTodo = (event) => {
+  event.target.classList.toggle('completed');
+};
+
+const handleUpdateTodo = (event) => {
+  // get the existing textContent of li
+  let existingTodo = event.target.firstChild.textContent;
+  // prompt user to enter new todo
+  let newTodo = prompt('Enter new todo', existingTodo);
+  // update li textContent
+  event.target.firstChild.textContent = newTodo;
+};
+
+const handleUpdateTodoTest = (event) => {
+  // get the existing textContent of li
+  let existingTodo = event.target.firstChild.textContent;
+  // prompt user to enter new todo
+  let newTodo = existingTodo + 'test and updated';
+  // update li textContent
+  event.target.firstChild.textContent = newTodo;
+};
+
 // test the app created for performance
 // 1. create 1000 todo
 // 3. edit 1000 todo (update)
@@ -146,12 +174,9 @@ let testTodos = [];
 let createTodoButton = document.createElement('button');
 createTodoButton.textContent = 'Create 1000 todo';
 let ul = document.createElement('ul');
-let time = document.createElement('time')
+let time = document.createElement('time');
 time.textContent = '0ms';
 testDiv.append(createTodoButton, time);
-
-
-
 
 createTodoButton.onclick = () => {
   const start = performance.now();
@@ -164,22 +189,31 @@ createTodoButton.onclick = () => {
     let li = document.createElement('li');
     // set textContent
     li.textContent = todo;
+    li.onclick = handleCompleteTodo;
+    li.ondblclick = handleUpdateTodoTest;
     // add a delete button
     let deleteButton = document.createElement('button');
     deleteButton.textContent = 'X';
     // add onclick event to button
-    deleteButton.onclick = handleDeleteTodo;
+    deleteButton.onclick = handleDeleteTodoTest;
 
     let span = document.createElement('span');
     span.append(deleteButton);
     li.append(span);
     // append li to ul
     ul.append(li);
+    // complete each todo created
     li.dispatchEvent(new Event('click'));
-    console.log(li)
+    // uncomplete each todo created
+    li.dispatchEvent(new Event('click'));
+    // update each todo created
+    li.dispatchEvent(new Event('dblclick'));
+
+    // delete each todo created
+    deleteButton.dispatchEvent(new Event('click'));
   }
   const end = performance.now();
   time.textContent = `${end - start}ms`;
-}
+};
 
 document.body.append(testDiv);
