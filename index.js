@@ -118,4 +118,8 @@ function createTodo(event, savedTodo = null) {
 
   // clear input
   input.value = '';
+
+  localStorage.setItem("todo", todos);
+  const storage = localStorage.getItem("todo");
+  console.log(storage);
 }
