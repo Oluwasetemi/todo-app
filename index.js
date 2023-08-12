@@ -163,9 +163,9 @@ const handleUpdateTodoTest = (event) => {
 // test the app created for performance
 // 1. create 1000 todo
 // 3. edit 1000 todo (update)
-// 2. delete 1000 todo
 // 4. mark 1000 todo as done
 // 5. unmark 1000 todo as done
+// 2. delete 1000 todo
 // 6. clear all todo
 
 let testDiv = document.createElement('div');
@@ -204,6 +204,7 @@ createTodoButton.onclick = () => {
     ul.append(li);
     // complete each todo created
     li.dispatchEvent(new Event('click'));
+    // console.log(li);
     // uncomplete each todo created
     li.dispatchEvent(new Event('click'));
     // update each todo created
@@ -211,6 +212,7 @@ createTodoButton.onclick = () => {
 
     // delete each todo created
     deleteButton.dispatchEvent(new Event('click'));
+    // console.log(li);
   }
   const end = performance.now();
   time.textContent = `${end - start}ms`;
