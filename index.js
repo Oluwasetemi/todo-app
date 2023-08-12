@@ -46,7 +46,7 @@ function createTodo(event) {
     let newTodo = prompt('Enter new todo', existingTodo);
     // update li textContent
     event.target.firstChild.textContent = newTodo;
-  }
+  };
 
   // add a delete button
   let deleteButton = document.createElement('button');
@@ -105,6 +105,7 @@ window.onload = () => {
 };
 
 const handleDeleteTodo = (event) => {
+  debugger;
   // remove li
   let deleteTodoConfirmed = confirm('do you want to remove todo?!');
   if (deleteTodoConfirmed) {
@@ -113,15 +114,23 @@ const handleDeleteTodo = (event) => {
     let li = span.parentElement;
 
     // delete from local storage
-    let todo = li.firstChild.textContent;
+    let todoToBeDeleted = li.firstChild.textContent;
     // console.log(todo);
     let storage = localStorage.getItem('todo');
     // console.log(storage.split(','));
 
     let newStorage = storage
       .split(',')
-      .filter((todo) => todo !== '')
-      .filter((todoItem) => todoItem !== todo);
+      // filter out empty string
+      .filter((eachTodo) => {
+        console.log('inside the empty string filter');
+        return eachTodo !== '';
+      })
+      // filter out todo to be deleted
+      .filter((eachTodo) => {
+        console.log('inside the remove filter');
+        return eachTodo !== todoToBeDeleted;
+      });
 
     // console.log(newStorage);
 
@@ -135,51 +144,7 @@ const handleDeleteTodo = (event) => {
 // test the app created for performance
 // 1. create 1000 todo
 // 3. edit 1000 todo (update)
-// 2. delete 1000 todo
 // 4. mark 1000 todo as done
 // 5. unmark 1000 todo as done
+// 2. delete 1000 todo
 // 6. clear all todo
-
-let testDiv = document.createElement('div');
-testDiv.style = 'position: fixed; bottom: 0; left: 0; z-index: 1000;';
-let testTodos = [];
-let createTodoButton = document.createElement('button');
-createTodoButton.textContent = 'Create 1000 todo';
-let ul = document.createElement('ul');
-let time = document.createElement('time')
-time.textContent = '0ms';
-testDiv.append(createTodoButton, time);
-
-
-
-
-createTodoButton.onclick = () => {
-  const start = performance.now();
-  for (let i = 0; i < 1000; i++) {
-    // test todo
-    let todo = `todo ${i}`;
-    // Add todo to the todos array
-    testTodos.push(todo);
-    // create li
-    let li = document.createElement('li');
-    // set textContent
-    li.textContent = todo;
-    // add a delete button
-    let deleteButton = document.createElement('button');
-    deleteButton.textContent = 'X';
-    // add onclick event to button
-    deleteButton.onclick = handleDeleteTodo;
-
-    let span = document.createElement('span');
-    span.append(deleteButton);
-    li.append(span);
-    // append li to ul
-    ul.append(li);
-    li.dispatchEvent(new Event('click'));
-    console.log(li)
-  }
-  const end = performance.now();
-  time.textContent = `${end - start}ms`;
-}
-
-document.body.append(testDiv);
